@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anime: Parallel Hearts</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#11101b;color:white;font-family:Arial,sans-serif}
+header{text-align:center;padding:18px;background:#211b36}
+header h1{color:#ff8ccf;margin:0}
+header p{color:#c9b8dc}
+main{max-width:850px;margin:auto;padding:16px}
+.scene{height:260px;border-radius:15px;background:linear-gradient(140deg,#372d59,#b66a9b,#f5a7b7);display:flex;align-items:end;padding:20px;background-size:cover;background-position:center}
+.character{font-size:75px;text-align:center;width:100%;text-shadow:0 3px 12px #222}
+.panel{background:#211b36;border:1px solid #514269;border-radius:15px;padding:18px;margin-top:14px}
+.name{color:#ff9ed6;font-weight:bold;margin-bottom:10px}
+#dialogue{line-height:1.7;min-height:65px}
+.choices{display:grid;gap:10px;margin-top:15px}
+button{background:#9b65c8;border:0;color:white;padding:14px;border-radius:10px;font-size:15px;cursor:pointer}
+button:hover{background:#bd80e7}
+.choice{background:#342747;text-align:left;border:1px solid #76518e}
+.stats{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#e6b9ed;font-size:13px}
+.small{background:#453457;padding:9px;margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+<h1>♡ Parallel Hearts ♡</h1>
+<p>Every choice changes your destiny.</p>
+</header>
+<main>
+<div class="stats">
+<span>Chapter: <b id="chapter">1</b></span>
+<span>❤️ Affection: <b id="affection">0</b></span>
+<span>⭐ Reputation: <b id="reputation">0</b></span>
+</div>
+<div class="scene" id="scene">
+<div class="character" id="character">🌸</div>
+</div>
+<div class="panel">
+<div class="name" id="name">Narrator</div>
+<div id="dialogue">Welcome to Sakura Academy. Your story is about to begin...</div>
+<div class="choices" id="choices"></div>
+</div>
+<button class="small" onclick="saveGame()">💾 Save Game</button>
+<button class="small" onclick="loadGame()">📂 Load Game</button>
+<button class="small" onclick="restart()">🔄 Restart Story</button>
+</main>
+<script>
+let affection=0,reputation=0,chapter=1,ending="";
+const scenes={
+start:{
+name:"Narrator",character:"🌸",
+text:"It's your first day at Sakura Academy. As you enter the classroom, a mysterious girl approaches you.",
+choices:[
+["Introduce yourself politely.","friendly"],
+["Act cool and confident.","cool"],
+["Avoid eye contact.","shy"]
+]},
+friendly:{
+name:"Mika",character:"🌸",
+text:"Mika smiles warmly. 'Nice to meet you! I hope we can become friends!'",
+choices:[
+["Ask her to show you around.","tour"],
+["Invite her to lunch.","lunch"],
+["Thank her and leave.","leave"]
+]},
+cool:{
+name:"Mika",character:"🌸",
+text:"'Oh? You're quite confident,' Mika says with a curious smile.",
+choices:[
+["Smile at her.","tour"],
+["Challenge her to a competition.","rival"],
+["Walk away.","leave"]
+]},
+shy:{
+name:"Mika",character:"🌸",
+text:"'Don't be nervous! I'm friendly, promise!' Mika giggles.",
+choices:[
+["Smile shyly.","tour"],
+["Ask her name.","lunch"],
+["Leave quietly.","leave"]
+]},
+tour:{
+name:"Mika",character:"🌸",
+text:"Mika takes you around the academy. You discover a beautiful garden together.",
+choices:[
+["Tell her she's a great guide.","garden"],
+["Ask about her hobbies.","hobby"]
+]},
+lunch:{
+name:"Mika",character:"🌸",
+text:"You spend lunch together. Mika tells you about her dream of becoming an artist.",
+choices:[
+["Encourage her dream.","garden"],
+["Share your own dream.","hobby"]
+]},
+leave:{
+name:"Narrator",character:"🚶",
+text:"You spend the day alone. But someone seems to be watching you from afar...",
+choices:[
+["Investigate the mysterious person.","mystery"],
+["Go home.","ending"]
+]},
+rival:{
+name:"Mika",character:"🌸",
+text:"Mika laughs. 'Challenge accepted! Let's see what you're made of!'",
+choices:[
+["Compete fairly.","garden"],
+["Admit you're joking.","hobby"]
+]},
+garden:{
+name:"Mika",character:"🌸",
+text:"Under the cherry blossoms, Mika looks at you. 'I'm glad I met you today.' Your bond is growing.",
+choices:[
+["Tell her you feel the same.","romance"],
+["Suggest becoming best friends.","friendship"],
+["Ask about her secret.","mystery"]
+]},
+hobby:{
+name:"Mika",character:"🌸",
+text:"You discover that you and Mika have more in common than expected.",
+choices:[
+["Spend more time together.","romance"],
+["Explore the school.","mystery"]
+]},
+romance:{
+name:"Mika",character:"❤️",
+text:"Mika blushes. 'I... think you're becoming special to me.'",
+choices:[
+["Confess your feelings.","happy"],
+["Take things slowly.","friendship"]
+]},
+friendship:{
+name:"Mika",character:"💖",
+text:"'I'm happy to have a friend like you!' Mika says.",
+choices:[
+["Promise to stay friends.","happy"],
+["Ask about her hidden past.","mystery"]
+]},
+mystery:{
+name:"???",character:"🌙",
+text:"A mysterious student appears. 'Mika isn't who you think she is...' What will you do?",
+choices:[
+["Listen to the stranger.","secret"],
+["Defend Mika.","happy"],
+["Find Mika and ask her.","romance"]
+]},
+secret:{
+name:"???",character:"🌙",
+text:"You discover an old secret about Sakura Academy. Mika has been protecting someone.",
+choices:[
+["Help uncover the truth.","true"],
+["Keep the secret.","happy"]
+]},
+happy:{
+name:"Narrator",character:"🌸",
+text:"You and Mika create wonderful memories together. Your journey at Sakura Academy is only beginning.",
+choices:[["See your ending.","endHappy"]]},
+true:{
+name:"Narrator",character:"✨",
+text:"You uncover the academy's secret and help Mika find the courage to face her past.",
+choices:[["See your ending.","endTrue"]]},
+ending:{
+name:"Narrator",character:"🌧️",
+text:"You leave the academy without discovering its mysteries. Some stories remain unfinished.",
+choices:[["See your ending.","endBad"]]},
+endHappy:{name:"HAPPY ENDING",character:"💗",text:"You found friendship and love at Sakura Academy. END.",choices:[]},
+endTrue:{name:"TRUE ENDING",character:"✨",text:"You discovered the truth, saved a friendship, and changed everyone's future. TRUE END.",choices:[]},
+endBad:{name:"LONELY ENDING",character:"🌧️",text:"You walked away from the connections waiting to be made. LONELY END.",choices:[]}
+};
+let current="start";
+function render(){
+let s=scenes[current];
+document.getElementById("name").textContent=s.name;
+document.getElementById("character").textContent=s.character;
+document.getElementById("dialogue").textContent=s.text;
+document.getElementById("chapter").textContent=chapter;
+document.getElementById("affection").textContent=affection;
+document.getElementById("reputation").textContent=reputation;
+let c=document.getElementById("choices");
+c.innerHTML="";
+s.choices.forEach(([label,next])=>{
+let b=document.createElement("button");
+b.className="choice";
+b.textContent=label;
+b.onclick=()=>choose(next);
+c.appendChild(b);
+});
+}
+function choose(next){
+if(["tour","lunch","garden","hobby","romance","friendship"].includes(next))affection+=2;
+if(["cool","rival","mystery","secret"].includes(next))reputation+=1;
+if(next==="ending"&&affection>=4)next="friendship";
+if(next==="romance"&&affection<2)affection+=2;
+current=next;
+chapter++;
+render();
+}
+function saveGame(){
+localStorage.setItem("parallelHearts",JSON.stringify({current,affection,reputation,chapter}));
+alert("Game saved!");
+}
+function loadGame(){
+let data=JSON.parse(localStorage.getItem("parallelHearts")||"null");
+if(!data){alert("No saved game found!");return;}
+({current,affection,reputation,chapter}=data);
+render();
+alert("Game loaded!");
+}
+function restart(){
+if(!confirm("Restart your story?"))return;
+current="start";affection=0;reputation=0;chapter=1;render();
+}
+render();
+</script>
+</body>
+  </html>
+  
